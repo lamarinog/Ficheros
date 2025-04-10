@@ -1,11 +1,13 @@
 package ficheros;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -29,7 +31,10 @@ public class Ficheros {
             System.out.println("Menu.");
             System.out.println("1. Crear archivo.");
             System.out.println("2. Editar archivo.");
-            System.out.println("10. Salir.");
+            System.out.println("3. Leer archivo.");
+            System.out.println("4. Gestionar fichero 'inventario.txt'.");
+            System.out.println("5. Diccionario.");
+            System.out.println("6. Salir.");
             System.out.println("Elija la opcion: ");
             opcion = in.nextInt();
             switch (opcion) {
@@ -42,11 +47,20 @@ public class Ficheros {
                 case 3:
                     leer(inStr);
                     break;
-                case 10:
+                case 4:
+                    System.out.println("Ingrese la cantidad: ");
+                    int cant = in.nextInt();
+                    gestionar(cant);
+                    break;
+                case 5:
+                    diccionario(inStr);
+                    break;
+                case 6:
                     System.out.println("Se finaliza programa.");
                     break;
                 default:
                     System.out.println("Elegir una opcion correcta.");
+                    break;
             }
         }
     }
@@ -159,6 +173,97 @@ public class Ficheros {
             }
         } else {
             System.out.println("No se lee el archivo.");
+        }
+    }
+
+    //4
+    public static void gestionar(int cantidad) {
+        Scanner inStr = new Scanner(System.in);
+        String nombre_dir = comprobarArchivo(inStr);
+        if (!nombre_dir.equals("-1")) {
+            String producto = "", precio = "", cant = "";
+            try {
+                BufferedWriter escr = new BufferedWriter(new FileWriter(nombre_dir));
+                for (int i = 0; i < cantidad; i++) {
+                    escr.write("linea 1: ");
+                    System.out.println("Ingrese el nombre del producto: ");
+                    producto = inStr.nextLine();
+                    escr.write(producto + " ");
+                    System.out.println("Ingrese el precio del producto: ");
+                    precio = inStr.nextLine();
+                    escr.write(precio + " ");
+                    System.out.println("Ingrese la cantidad del producto: ");
+                    cant = inStr.nextLine();
+                    escr.write(cantidad);
+                    escr.newLine();
+                }
+                escr.close();
+                System.out.println("Se han ingresado los datos correctamente.");
+                leer_gest(nombre_dir);
+            } catch (IOException e) {
+                System.out.println("Se ha generado un error al gestionar el archivo.");
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("No se gestiona el archivo.");
+        }
+    }
+
+    public static void leer_gest(String nombre_dir) {
+        try {
+            float total = 0;
+            BufferedReader leer = new BufferedReader(new FileReader(nombre_dir));
+            while (leer.readLine() != null) {
+                String[] aux = leer.readLine().split(" ");
+                for (int i = 0; i < aux.length; i++) {
+                    total += Float.parseFloat(aux[1]) + Float.parseFloat(aux[2]);
+                }
+            }
+            System.out.printf("El total de todo el inventario es: %.2f%n", total);
+            leer.close();
+        } catch (IOException e) {
+            System.out.println("Se ha generado un error al gestionar el archivo.");
+            e.printStackTrace();
+        }
+    }
+
+    //5 INCOMPLETO
+    public static void diccionario(Scanner inStr) {
+        String nombre_dir = comprobarArchivo(inStr);
+        if (!nombre_dir.equals("-1")) {
+            try {
+                int contador = 0, contador_nu = 0;
+                Scanner leer = new Scanner(new BufferedReader(new FileReader(nombre_dir)));
+                while (leer.hasNextLine()) {
+                    String linea = leer.nextLine();
+                    String[] palabras = linea.trim().split("\\s+");
+                    if (!linea.trim().isEmpty()) {
+                        contador += palabras.length;
+                    }
+                }
+                String[] palabras_nu = new String[contador];
+                int opti = 0;
+                while (leer.hasNextLine()) {
+                    String linea = leer.nextLine();
+                    String[] palabras = linea.trim().split("\\s+");
+                    for (int i = 0; i < palabras.length; i++) {
+                        for (int j = opti; j < palabras_nu.length; j++) {
+                            if (palabras_nu[j] == null) {
+                                palabras[i] = palabras[i].toLowerCase().replaceAll("[.,-_]", "");
+                                palabras_nu[j] = palabras[i];
+                                j = palabras_nu.length;
+                                opti = j + 1;
+                            }
+                        }
+                    }
+                }
+                String[] resultado = Arrays.stream(palabras_nu).distinct().toArray(String[]::new);
+            } catch (IOException e) {
+                System.out.println("Se ha generado un error al gestionar el archivo.");
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("No se gestiona el archivo.");
         }
     }
 }
