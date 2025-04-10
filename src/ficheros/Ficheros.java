@@ -1,14 +1,16 @@
 package ficheros;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 /**
  *
- * @author Blanca
+ * @author Luis
  */
 public class Ficheros {
 
@@ -36,6 +38,9 @@ public class Ficheros {
                     break;
                 case 2:
                     editar(inStr, in);
+                    break;
+                case 3:
+                    leer(inStr);
                     break;
                 case 10:
                     System.out.println("Se finaliza programa.");
@@ -89,14 +94,13 @@ public class Ficheros {
 
     //2
     public static void editar(Scanner inStr, Scanner in) {
-        boolean check = true;
-        int caracter;
-        String texto = "";
         String nombre_dir = comprobarArchivo(inStr);
         if (!nombre_dir.equals("-1")) {
+            boolean check = true;
+            String texto = "";
             try {
                 FileWriter editar = new FileWriter(nombre_dir, true);
-                FileReader leer = new FileReader(nombre_dir);
+                PrintWriter escribir = new PrintWriter(new FileWriter(nombre_dir));
                 while (check) {
                     System.out.println("Menu de edicion.");
                     System.out.println("1. Ingresar texto al archivo.");
@@ -105,7 +109,8 @@ public class Ficheros {
                     if (opcion == 1) {
                         System.out.println("Ingrese el texto nueva al archivo.");
                         texto = inStr.nextLine();
-                        editar.write(texto + "\n");
+                        editar.write(texto + " - Esto se escribe con FileWriter" + "\n");
+                        escribir.println(texto + " - Esto se escribe con PrintWritter");
                     } else if (opcion == 2) {
                         System.out.println("Finaliza la edición.");
                         check = false;
@@ -113,11 +118,7 @@ public class Ficheros {
                         System.out.println("Elija una opcion correcta.");
                     }
                 }
-                System.out.println("Contenido del archivo " + nombre_dir + ":");
-                while ((caracter = leer.read()) != -1) {
-                    System.out.print((char) caracter);
-                }
-                leer.close();
+                escribir.close();
                 editar.close();
             } catch (IOException e) {
                 System.out.println("Se ha generado un error al editar el archivo o leerlo.");
@@ -129,5 +130,35 @@ public class Ficheros {
     }
 
     //3
-    //public
+    public static void leer(Scanner inStr) {
+        String nombre_dir = comprobarArchivo(inStr);
+        if (!nombre_dir.equals("-1")) {
+            int caracter;
+            try {
+                FileReader leer = new FileReader(nombre_dir);
+                System.out.println("Contenido del archivo con FileReader " + nombre_dir + ":");
+                while ((caracter = leer.read()) != -1) {
+                    System.out.print((char) caracter);
+                }
+                leer.close();
+                BufferedReader leer_buf = new BufferedReader(new FileReader(nombre_dir));
+                System.out.println("Contenido del archivo con BufferedReader " + nombre_dir + ":");
+                while (leer_buf.readLine() != null) {
+                    System.out.print(leer_buf.readLine());
+                }
+                leer_buf.close();
+                Scanner leer_scn = new Scanner(new FileReader(nombre_dir));
+                System.out.println("Contenido del archivo con Scanner " + nombre_dir + ":");
+                while (leer_scn.hasNextLine()) {
+                    System.out.println(leer_scn.nextLine());
+                }
+                leer_scn.close();
+            } catch (IOException e) {
+                System.out.println("Se ha generado un error al editar el archivo o leerlo.");
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("No se lee el archivo.");
+        }
+    }
 }
