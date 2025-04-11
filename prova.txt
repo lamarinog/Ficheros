@@ -1,0 +1,4 @@
+hola - Esto se escribe con PrintWritter
+chao - Esto se escribe con PrintWritter
+hola - Esto se escribe con FileWriter
+chao - Esto se escribe con FileWriter

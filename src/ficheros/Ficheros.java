@@ -49,7 +49,7 @@ public class Ficheros {
                     leer(inStr);
                     break;
                 case 4:
-                    System.out.println("Ingrese la cantidad: ");
+                    System.out.println("Ingrese la cantidad de productos a ingresar: ");
                     int cant = in.nextInt();
                     gestionar(cant);
                     break;
@@ -158,12 +158,14 @@ public class Ficheros {
                 }
                 leer.close();
                 BufferedReader leer_buf = new BufferedReader(new FileReader(nombre_dir));
+                System.out.println();
                 System.out.println("Contenido del archivo con BufferedReader " + nombre_dir + ":");
-                while (leer_buf.readLine() != null) {
-                    System.out.print(leer_buf.readLine());
+                while ((caracter = leer_buf.read()) != -1) {
+                    System.out.print((char) caracter);
                 }
                 leer_buf.close();
                 Scanner leer_scn = new Scanner(new FileReader(nombre_dir));
+                System.out.println();
                 System.out.println("Contenido del archivo con Scanner " + nombre_dir + ":");
                 while (leer_scn.hasNextLine()) {
                     System.out.println(leer_scn.nextLine());
@@ -187,7 +189,6 @@ public class Ficheros {
             try {
                 BufferedWriter escr = new BufferedWriter(new FileWriter(nombre_dir));
                 for (int i = 0; i < cantidad; i++) {
-                    //escr.write("linea " + i + ": ");
                     System.out.println("Ingrese el nombre del producto: ");
                     producto = inStr.nextLine();
                     escr.write(producto + " ");
@@ -196,7 +197,7 @@ public class Ficheros {
                     escr.write(precio + " ");
                     System.out.println("Ingrese la cantidad del producto: ");
                     cant = inStr.nextLine();
-                    escr.write(cantidad);
+                    escr.write(cant);
                     escr.newLine();
                 }
                 escr.close();
@@ -214,12 +215,15 @@ public class Ficheros {
     public static void leer_gest(String nombre_dir) {
         try {
             float total = 0;
-            BufferedReader leer = new BufferedReader(new FileReader(nombre_dir));
-            while (leer.readLine() != null) {
-                String[] aux = leer.readLine().split(" ");
-                for (int i = 0; i < aux.length; i++) {
-                    total += Float.parseFloat(aux[1]) + Float.parseFloat(aux[2]);
-                }
+            int i = 1;
+            Scanner leer = new Scanner(new BufferedReader(new FileReader(nombre_dir)));
+            while (leer.hasNextLine()) {
+                String linea = leer.nextLine();
+                String[] aux = linea.trim().split("\\s+");
+                System.out.println("Producto " + i);
+                System.out.println("Nombre: " + aux[0] + ", Precio: " + aux[1] + ", Cantidad: " + aux[2]);
+                total += Float.parseFloat(aux[1]) * Float.parseFloat(aux[2]);
+                i++;
             }
             System.out.printf("El total de todo el inventario es: %.2f%n", total);
             leer.close();
@@ -244,7 +248,7 @@ public class Ficheros {
         System.out.println("Luego de la ordenacion: ");
         System.out.println(Arrays.toString(resultado));
     }
-    
+
     //CREAR EL ARRAY CON LA CANTIDAD DE PALABRAS Y LAS LIMPIA
     public static void limpiarArray(String[] palabras_nu, String nombre_dir) {
         try {
@@ -270,7 +274,7 @@ public class Ficheros {
             e.printStackTrace();
         }
     }
-    
+
     //GENERA EL DICCIONARIO.TXT Y SI YA EXISTE NO LO HACE.
     public static void generar(String[] palabras) {
         File dir = new File("diccionario.txt");
@@ -310,6 +314,8 @@ public class Ficheros {
                 leer.close();
                 String[] palabras_nu = new String[contador];
                 limpiarArray(palabras_nu, nombre_dir);
+                System.out.println("Palabras sin limpiar: ");
+                System.out.println(Arrays.toString(palabras_nu));
                 String[] resultado = Arrays.stream(palabras_nu).distinct().toArray(String[]::new);
                 System.out.println("Antes de la ordenacion: ");
                 System.out.println(Arrays.toString(resultado));
