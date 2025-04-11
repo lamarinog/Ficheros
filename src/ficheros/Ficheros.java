@@ -23,11 +23,12 @@ public class Ficheros {
         menu();
     }
 
+    //MENU DEL EJERCICIO
     public static void menu() {
         Scanner in = new Scanner(System.in);
         Scanner inStr = new Scanner(System.in);
         int opcion = 0;
-        while (opcion != 10) {
+        while (opcion != 6) {
             System.out.println("Menu.");
             System.out.println("1. Crear archivo.");
             System.out.println("2. Editar archivo.");
@@ -65,6 +66,7 @@ public class Ficheros {
         }
     }
 
+    //COMPRUEBA SI ESXISTE EL ARCHIVO Y NO ES UN DIRECTORIO
     public static String comprobarArchivo(Scanner inStr) {
         boolean check = true;
         String nombre_dir = "";
@@ -86,7 +88,7 @@ public class Ficheros {
         return nombre_dir;
     }
 
-    //1
+    //1 CREAR ARCHIVO EN CASO NO EXISTA
     public static void crear(Scanner inStr) {
         System.out.println("Ingrese el nombre del archivo a crear con su extension: ");
         String nombre_dir = inStr.nextLine();
@@ -106,7 +108,7 @@ public class Ficheros {
         System.out.println("El peso en kb es: " + dir.length());
     }
 
-    //2
+    //2 EDITAR EL ARCHIVO
     public static void editar(Scanner inStr, Scanner in) {
         String nombre_dir = comprobarArchivo(inStr);
         if (!nombre_dir.equals("-1")) {
@@ -143,7 +145,7 @@ public class Ficheros {
         }
     }
 
-    //3
+    //3 LEER EL ARCHIVO
     public static void leer(Scanner inStr) {
         String nombre_dir = comprobarArchivo(inStr);
         if (!nombre_dir.equals("-1")) {
@@ -176,7 +178,7 @@ public class Ficheros {
         }
     }
 
-    //4
+    //4 GESTIONAR EL INVENTARIO
     public static void gestionar(int cantidad) {
         Scanner inStr = new Scanner(System.in);
         String nombre_dir = comprobarArchivo(inStr);
@@ -185,7 +187,7 @@ public class Ficheros {
             try {
                 BufferedWriter escr = new BufferedWriter(new FileWriter(nombre_dir));
                 for (int i = 0; i < cantidad; i++) {
-                    escr.write("linea 1: ");
+                    //escr.write("linea " + i + ": ");
                     System.out.println("Ingrese el nombre del producto: ");
                     producto = inStr.nextLine();
                     escr.write(producto + " ");
@@ -227,7 +229,71 @@ public class Ficheros {
         }
     }
 
-    //5 INCOMPLETO
+    //METODOS DE DICCIONARIO LITERAL 5
+    public static void ordenar(String[] resultado) {
+        String temp = "";
+        for (int i = 0; i < resultado.length; i++) {
+            for (int j = 1; j < (resultado.length - i); j++) {
+                if (resultado[j - 1].compareTo(resultado[j]) > 0) {
+                    temp = resultado[j - 1];
+                    resultado[j - 1] = resultado[j];
+                    resultado[j] = temp;
+                }
+            }
+        }
+        System.out.println("Luego de la ordenacion: ");
+        System.out.println(Arrays.toString(resultado));
+    }
+    
+    //CREAR EL ARRAY CON LA CANTIDAD DE PALABRAS Y LAS LIMPIA
+    public static void limpiarArray(String[] palabras_nu, String nombre_dir) {
+        try {
+            Scanner leer = new Scanner(new BufferedReader(new FileReader(nombre_dir)));
+            int opti = 0;
+            while (leer.hasNextLine()) {
+                String linea = leer.nextLine();
+                String[] palabras = linea.trim().split("\\s+");
+                for (int i = 0; i < palabras.length; i++) {
+                    for (int j = opti; j < palabras_nu.length; j++) {
+                        if (palabras_nu[j] == null) {
+                            palabras[i] = palabras[i].toLowerCase().replaceAll("[.,-_]", "");
+                            palabras_nu[j] = palabras[i];
+                            opti = j + 1;
+                            j = palabras_nu.length;
+                        }
+                    }
+                }
+            }
+            leer.close();
+        } catch (IOException e) {
+            System.out.println("Se ha generado un error al gestionar el archivo.");
+            e.printStackTrace();
+        }
+    }
+    
+    //GENERA EL DICCIONARIO.TXT Y SI YA EXISTE NO LO HACE.
+    public static void generar(String[] palabras) {
+        File dir = new File("diccionario.txt");
+        try {
+            if (dir.createNewFile()) {
+                System.out.println("Fichero creado.");
+                BufferedWriter escr = new BufferedWriter(new FileWriter("diccionario.txt"));
+                for (int i = 0; i < palabras.length; i++) {
+                    escr.write(palabras[i]);
+                    escr.newLine();
+                }
+                escr.write("Total de palabras: " + Integer.toString(palabras.length) + ".");
+                escr.close();
+            } else {
+                System.out.println("El fichero ya existe.");
+            }
+        } catch (IOException e) {
+            System.out.println("Existe un error al crear el archivo.");
+            e.printStackTrace();
+        }
+    }
+
+    //5 DICCIONARIO, ORDENACION
     public static void diccionario(Scanner inStr) {
         String nombre_dir = comprobarArchivo(inStr);
         if (!nombre_dir.equals("-1")) {
@@ -241,23 +307,16 @@ public class Ficheros {
                         contador += palabras.length;
                     }
                 }
+                leer.close();
                 String[] palabras_nu = new String[contador];
-                int opti = 0;
-                while (leer.hasNextLine()) {
-                    String linea = leer.nextLine();
-                    String[] palabras = linea.trim().split("\\s+");
-                    for (int i = 0; i < palabras.length; i++) {
-                        for (int j = opti; j < palabras_nu.length; j++) {
-                            if (palabras_nu[j] == null) {
-                                palabras[i] = palabras[i].toLowerCase().replaceAll("[.,-_]", "");
-                                palabras_nu[j] = palabras[i];
-                                j = palabras_nu.length;
-                                opti = j + 1;
-                            }
-                        }
-                    }
-                }
+                limpiarArray(palabras_nu, nombre_dir);
                 String[] resultado = Arrays.stream(palabras_nu).distinct().toArray(String[]::new);
+                System.out.println("Antes de la ordenacion: ");
+                System.out.println(Arrays.toString(resultado));
+                ordenar(resultado);
+                generar(resultado);
+                System.out.println("Se encontraron " + contador + " palabras al inicio del proceso.");
+                System.out.println("Se encontraron " + resultado.length + " palabras al final del proceso.");
             } catch (IOException e) {
                 System.out.println("Se ha generado un error al gestionar el archivo.");
                 e.printStackTrace();
@@ -266,4 +325,5 @@ public class Ficheros {
             System.out.println("No se gestiona el archivo.");
         }
     }
+
 }
